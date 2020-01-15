@@ -1,0 +1,183 @@
+* Installation 
+** Dependencies
+- SBCL (Recommended to build from source. (Decpite this, it seems to work just fine with arch's pacman.))
+- Quicklisp
+  - clx
+  - cl-ppcre
+  - alexandria
+** Quicklisp
+#+BEGIN_SRC sh
+  $ curl -O https://beta.quicklisp.org/quicklisp.lisp
+  $ sbcl --load quicklisp.lisp
+#+END_SRC
+In the REPL by SBCL type;
+#+BEGIN_SRC lisp
+  (quicklisp-quickstart:install)
+#+END_SRC
+and continue with;
+#+BEGIN_SRC lisp
+  (ql:add-to-init-file)
+#+END_SRC
+After adding quicklisp into your lisp-init,
+in the REPL, install the remainding dependencies with;
+#+BEGIN_SRC lisp
+  (ql:quickload "clx")
+  (ql:quickload "cl-ppcre")
+  (ql:quickload "alexandria")
+#+END_SRC
+** Build
+Clone stumpwm
+#+BEGIN_SRC sh
+  $ git clone https://github.com/stumpwm/stumpwm
+#+END_SRC
+Building from git, requires you to build the configuration-script with;
+#+BEGIN_SRC sh
+  $ autoconf
+#+END_SRC
+Or using existing configuration-script, (in both cases) use;
+#+BEGIN_SRC sh
+  $ ./configure
+#+END_SRC
+Build it with;
+#+BEGIN_SRC sh
+  $ make
+#+END_SRC
+By now you will have a working binary.
+Install it from where it is stored, with;
+#+BEGIN_SRC sh
+  $ make install
+#+END_SRC
+Configure your /.xinitrc/ for fetching it with /startx/
+#+BEGIN_SRC sh
+  $ echo /path/to/stumpwm >> ~/.xinitrc 
+  $ startx
+#+END_SRC
+
+This might let your X run the stump window manager. If something went worng,
+don't hesitate to consult the *stumpwm* for information at their git, wiki or website.
+* .stumpwm.d
+Enter *C-t ; "loadrc" RET* to evaluate this configuration.
+** init.lisp
+*** Configuration
+#+BEGIN_SRC lisp :tangle init.lisp
+  (in-package :stumpwm)
+#+END_SRC
+**** Star-up
+***** Background process
+Execute *compton* when x-starts to reduce screen-flickering.
+#+BEGIN_SRC lisp :tangle init.lisp
+  (run-shell-command "compton")
+#+END_SRC
+Commands
+#+BEGIN_SRC lisp :tangle init.lisp
+  (run-commands "toggle-gaps"
+		"which-key-mode")
+#+END_SRC
+**** Prompt
+prompts for an interactive command
+#+BEGIN_SRC lisp :tangle init.lisp
+  (defcommand colon1 (&optional (initial "")) (:rest)
+    (let ((cmd (read-one-line (current-screen) ": " :initial-input initial)))
+      (when cmd
+	(eval-command cmd t))))
+#+END_SRC
+Message-window
+#+BEGIN_SRC lisp :tangle init.lisp
+  (setf *message-window-gravity*              :top-left
+	,*input-window-gravity*               :top-left
+	,*window-border-style*                :none
+	,*message-window-padding*             0
+	,*maxsize-border-width*               0
+	,*normal-border-width*                0
+	stumpwm::*float-window-border*       2
+	stumpwm::*float-window-title-height* 5)
+#+END_SRC
+Color-palette
+#+BEGIN_SRC lisp :tangle init.lisp
+  (set-fg-color     "#ffffff")
+  (set-bg-color     "#000080")
+  (set-border-color "#d9d9d9")
+#+END_SRC
+**** Load-path 
+#+BEGIN_SRC lisp :tangle init.lisp
+  (load "~/.stumpwm.d/key-bind.lisp")
+  (load "~/.stumpwm.d/dmenu.lisp")
+#+END_SRC
+***** Module load-path
+#+BEGIN_SRC lisp :tangle init.lisp
+  (set-module-dir
+   (pathname-as-directory (concat (getenv "HOME") "/.stumpwm.d/modules")))
+#+END_SRC
+***** Loaded Modules
+#+BEGIN_SRC lisp :tangle init.lisp
+  (load-module "swm-gaps")
+#+END_SRC
+****** swm-gaps
+#+BEGIN_SRC lisp :tangle init.lisp
+  (setf swm-gaps:*inner-gaps-size* 2
+	swm-gaps:*outer-gaps-size* 3)
+  (run-commands "toggle-gaps")
+#+END_SRC
+**** Error-handle
+#+BEGIN_SRC lisp :tangle init.lisp
+  (setf stumpwm:*top-level-error-action* :break)
+#+END_SRC
+**** set "remember"-variable 
+***** dmenu.lisp
+#+BEGIN_SRC lisp :tangle dmenu.lisp
+  (in-package #:stumpwm)
+
+  (defvar *dmenu-position*                 :top)
+  (defvar *dmenu-fast-p*                      t)
+  (defvar *dmenu-case-sensitive-p*          nil)
+  (defvar *dmenu-font*                      nil)
+  (defvar *dmenu-background-color*          nil)
+  (defvar *dmenu-foreground-color*          nil)
+  (defvar *dmenu-selected-background-color* nil)
+  (defvar *dmenu-max-vertical-lines*         10)
+#+END_SRC
+***** mode-line.lisp
+** key-bind.lisp
+**** Configuration
+***** Prefix-key
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (in-package :stumpwm)
+
+  (set-prefix-key (kbd "C-t"))
+#+END_SRC
+***** Execute 
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (define-key *root-map* (kbd "C-s") "exec st")
+  (define-key *root-map* (kbd "C-q") "exec qutebrowser")
+#+END_SRC
+***** Bind "move-window"
+vim-like hjkl to move around current window on display.
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (define-key *root-map* (kbd "C-h") "move-window left")
+  (define-key *root-map* (kbd "C-l") "move-window right")
+  (define-key *root-map* (kbd "C-k") "move-window up")
+  (define-key *root-map* (kbd "C-j") "move-window down")
+#+END_SRC
+***** Bind "move-focus"
+vim-like (hjkl)
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (define-key *root-map* (kbd "h") "move-focus left")
+  (define-key *root-map* (kbd "l") "move-focus right")
+  (define-key *root-map* (kbd "k") "move-focus up")
+  (define-key *root-map* (kbd "j") "move-focus down")
+#+END_SRC
+***** Key-maps
+****** Describe-map
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (defvar *describe-map*
+    (let ((m (stumpwm:make-sparse-keymap)))
+      (stumpwm:define-key m (stumpwm:kbd "k") "describe-key")
+      (stumpwm:define-key m (stumpwm:kbd "f") "describe-function")
+      (stumpwm:define-key m (stumpwm:kbd "c") "describe-command")
+      (stumpwm:define-key m (stumpwm:kbd "v") "describe-variable")
+      m ; This one is important
+      ))
+  (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ".") '*describe-map*)
+#+END_SRC
+***** Bind "window-list" to $prefix-?
+***** Bind loadrc
