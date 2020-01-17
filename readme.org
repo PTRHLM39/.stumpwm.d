@@ -101,7 +101,6 @@ Color-palette
 **** Load-path 
 #+BEGIN_SRC lisp :tangle init.lisp
   (load "~/.stumpwm.d/key-bind.lisp")
-  (load "~/.stumpwm.d/dmenu.lisp")
 #+END_SRC
 ***** Module load-path
 #+BEGIN_SRC lisp :tangle init.lisp
@@ -123,20 +122,6 @@ Color-palette
   (setf stumpwm:*top-level-error-action* :break)
 #+END_SRC
 **** set "remember"-variable 
-***** dmenu.lisp
-#+BEGIN_SRC lisp :tangle dmenu.lisp
-  (in-package #:stumpwm)
-
-  (defvar *dmenu-position*                 :top)
-  (defvar *dmenu-fast-p*                      t)
-  (defvar *dmenu-case-sensitive-p*          nil)
-  (defvar *dmenu-font*                      nil)
-  (defvar *dmenu-background-color*          nil)
-  (defvar *dmenu-foreground-color*          nil)
-  (defvar *dmenu-selected-background-color* nil)
-  (defvar *dmenu-max-vertical-lines*         10)
-#+END_SRC
-***** mode-line.lisp
 ** key-bind.lisp
 **** Configuration
 ***** Prefix-key
@@ -144,6 +129,13 @@ Color-palette
   (in-package :stumpwm)
 
   (set-prefix-key (kbd "C-t"))
+
+  ;; Emacs-like frame-navigation.
+  (define-key *root-map* (kbd "0") "remove-split")
+  (define-key *root-map* (kbd "1") "only")
+  (define-key *root-map* (kbd "2") "vsplit")
+  (define-key *root-map* (kbd "3") "hsplit")
+  (define-key *root-map* (kbd "C-b") "windowlist")
 #+END_SRC
 ***** Execute 
 #+BEGIN_SRC lisp :tangle key-bind.lisp
@@ -179,5 +171,13 @@ vim-like (hjkl)
       ))
   (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ".") '*describe-map*)
 #+END_SRC
-***** Bind "window-list" to $prefix-?
-***** Bind loadrc
+****** Evaluate-map 
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (defvar *evaluate-map*
+    (let ((m (stumpwm:make-sparse-keymap)))
+      (stumpwm:define-key m (stumpwm:kbd "l") "loadrc")
+      (stumpwm:define-key m (stumpwm:kbd "q") "quit")
+      m
+      ))
+  (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ",") '*evaluate-map*)
+#+END_SRC

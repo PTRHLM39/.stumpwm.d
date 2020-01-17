@@ -24,7 +24,6 @@
 (set-border-color "#d9d9d9")
 
 (load "~/.stumpwm.d/key-bind.lisp")
-(load "~/.stumpwm.d/dmenu.lisp")
 
 (set-module-dir
  (pathname-as-directory (concat (getenv "HOME") "/.stumpwm.d/modules")))

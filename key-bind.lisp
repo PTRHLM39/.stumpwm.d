@@ -2,6 +2,13 @@
 
 (set-prefix-key (kbd "C-t"))
 
+;; Emacs-like frame-navigation.
+(define-key *root-map* (kbd "0") "remove-split")
+(define-key *root-map* (kbd "1") "only")
+(define-key *root-map* (kbd "2") "vsplit")
+(define-key *root-map* (kbd "3") "hsplit")
+(define-key *root-map* (kbd "C-b") "windowlist")
+
 (define-key *root-map* (kbd "C-s") "exec st")
 (define-key *root-map* (kbd "C-q") "exec qutebrowser")
 
@@ -24,3 +31,11 @@
     m ; This one is important
     ))
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ".") '*describe-map*)
+
+(defvar *evaluate-map*
+  (let ((m (stumpwm:make-sparse-keymap)))
+    (stumpwm:define-key m (stumpwm:kbd "l") "loadrc")
+    (stumpwm:define-key m (stumpwm:kbd "q") "quit")
+    m
+    ))
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ",") '*evaluate-map*)
