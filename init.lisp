@@ -1,6 +1,8 @@
 (in-package :stumpwm)
 
 (run-shell-command "compton")
+(run-shell-command "nitrogen --set-auto ~/pictures/civ.png")
+(run-shell-command "pamixer --set-volume 15")
 
 (run-commands "toggle-gaps"
 	      "which-key-mode")
@@ -24,14 +26,20 @@
 (set-border-color "#d9d9d9")
 
 (load "~/.stumpwm.d/key-bind.lisp")
+(load "~/.stumpwm.d/mode-line.lisp")
 
 (set-module-dir
  (pathname-as-directory (concat (getenv "HOME") "/.stumpwm.d/modules")))
 
 (load-module "swm-gaps")
+(load-module "winner-mode")
 
 (setf swm-gaps:*inner-gaps-size* 2
       swm-gaps:*outer-gaps-size* 3)
 (run-commands "toggle-gaps")
+
+(add-hook *post-command-hook* (lambda (command)
+                                (when (member command winner-mode:*default-commands*)
+                                  (winner-mode:dump-group-to-file))))
 
 (setf stumpwm:*top-level-error-action* :break)

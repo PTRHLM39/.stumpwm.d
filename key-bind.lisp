@@ -1,3 +1,13 @@
+(defvar *winner-map*
+  (let ((m (stumpwm:make-sparse-keymap)))
+    (stumpwm:define-key m (stumpwm:kbd "p") "winner-undo")
+    (stumpwm:define-key m (stumpwm:kbd "n") "winner-redo")
+    m ; This one is important
+    ))
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") '*winner-map*)
+
+(define-key *root-map* (kbd "C-m") "mode-line")
+
 (in-package :stumpwm)
 
 (set-prefix-key (kbd "C-t"))

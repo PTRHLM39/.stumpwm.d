@@ -57,6 +57,7 @@ This might let your X run the stump window manager. If something went worng,
 don't hesitate to consult the *stumpwm* for information at their git, wiki or website.
 * .stumpwm.d
 Enter *C-t ; "loadrc" RET* to evaluate this configuration.
+
 ** init.lisp
 *** Configuration
 #+BEGIN_SRC lisp :tangle init.lisp
@@ -67,11 +68,14 @@ Enter *C-t ; "loadrc" RET* to evaluate this configuration.
 Execute *compton* when x-starts to reduce screen-flickering.
 #+BEGIN_SRC lisp :tangle init.lisp
   (run-shell-command "compton")
+  (run-shell-command "nitrogen --set-auto ~/pictures/civ.png")
+  (run-shell-command "pamixer --set-volume 15")
 #+END_SRC
 Commands
 #+BEGIN_SRC lisp :tangle init.lisp
   (run-commands "toggle-gaps"
 		"which-key-mode")
+		
 #+END_SRC
 **** Prompt
 prompts for an interactive command
@@ -101,6 +105,7 @@ Color-palette
 **** Load-path 
 #+BEGIN_SRC lisp :tangle init.lisp
   (load "~/.stumpwm.d/key-bind.lisp")
+  (load "~/.stumpwm.d/mode-line.lisp")
 #+END_SRC
 ***** Module load-path
 #+BEGIN_SRC lisp :tangle init.lisp
@@ -110,6 +115,7 @@ Color-palette
 ***** Loaded Modules
 #+BEGIN_SRC lisp :tangle init.lisp
   (load-module "swm-gaps")
+  (load-module "winner-mode")
 #+END_SRC
 ****** swm-gaps
 #+BEGIN_SRC lisp :tangle init.lisp
@@ -117,11 +123,39 @@ Color-palette
 	swm-gaps:*outer-gaps-size* 3)
   (run-commands "toggle-gaps")
 #+END_SRC
+****** winner-mode
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+    (defvar *winner-map*
+      (let ((m (stumpwm:make-sparse-keymap)))
+	(stumpwm:define-key m (stumpwm:kbd "p") "winner-undo")
+	(stumpwm:define-key m (stumpwm:kbd "n") "winner-redo")
+	m ; This one is important
+	))
+    (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") '*winner-map*)
+#+END_SRC
+#+BEGIN_SRC lisp :tangle init.lisp
+(add-hook *post-command-hook* (lambda (command)
+                                (when (member command winner-mode:*default-commands*)
+                                  (winner-mode:dump-group-to-file))))
+#+END_SRC
 **** Error-handle
 #+BEGIN_SRC lisp :tangle init.lisp
   (setf stumpwm:*top-level-error-action* :break)
 #+END_SRC
 **** set "remember"-variable 
+** mode-line.lisp
+#+BEGIN_SRC lisp :tangle mode-line.lisp
+  (load-module "cpu")
+  (load-module "battery-portable")
+#+END_SRC
+#+BEGIN_SRC lisp :tangle mode-line.lisp
+  (setf stumpwm:*screen-mode-line-format*
+	(list "%v | %C | %B | "
+	      '(:eval (stumpwm:run-shell-command "date" t))))
+#+END_SRC
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (define-key *root-map* (kbd "C-m") "mode-line")
+#+END_SRC
 ** key-bind.lisp
 **** Configuration
 ***** Prefix-key
