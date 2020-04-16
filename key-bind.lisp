@@ -46,6 +46,16 @@
   (let ((m (stumpwm:make-sparse-keymap)))
     (stumpwm:define-key m (stumpwm:kbd "l") "loadrc")
     (stumpwm:define-key m (stumpwm:kbd "q") "quit")
+    (stumpwm:define-key m (stumpwm:kbd "r") "restart-soft")
+    (stumpwm:define-key m (stumpwm:kbd "p") "exec shutdown -h now")
     m
     ))
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ",") '*evaluate-map*)
+
+(defvar *systemctl-map*
+  (let ((m (stumpwm:make-sparse-keymap)))
+    (stumpwm:define-key m (stumpwm:kbd "r") "exec systemctl reboot")
+    (stumpwm:define-key m (stumpwm:kbd "q") "exec systemctl poweroff")
+    m
+    ))
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "d") '*systemctl-map*)

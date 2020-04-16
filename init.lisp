@@ -1,29 +1,32 @@
 (in-package :stumpwm)
 
+(run-shell-command "rot_sec.sh")
+(run-shell-command "ext_monitor.sh") ; Monitor toggling script
 (run-shell-command "compton")
 (run-shell-command "nitrogen --set-auto ~/pictures/civ.png")
 (run-shell-command "pamixer --set-volume 15")
 
 (run-commands "toggle-gaps"
-	      "which-key-mode")
+	      "which-key-mode"
+	      "refresh-heads") ; Refresh monitor-heads
 
 (defcommand colon1 (&optional (initial "")) (:rest)
   (let ((cmd (read-one-line (current-screen) ": " :initial-input initial)))
     (when cmd
       (eval-command cmd t))))
 
-(setf *message-window-gravity*              :top-left
+(setf *message-window-gravity*             :top-left
       *input-window-gravity*               :top-left
       *window-border-style*                :none
       *message-window-padding*             0
       *maxsize-border-width*               0
-      *normal-border-width*                0
+      *normal-border-width*                3
       stumpwm::*float-window-border*       2
       stumpwm::*float-window-title-height* 5)
 
-(set-fg-color     "#ffffff")
-(set-bg-color     "#000080")
-(set-border-color "#d9d9d9")
+(set-fg-color     "#9acd32")
+(set-bg-color     "#000000")
+(set-border-color "#556b2f")
 
 (load "~/.stumpwm.d/key-bind.lisp")
 (load "~/.stumpwm.d/mode-line.lisp")

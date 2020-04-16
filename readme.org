@@ -67,6 +67,8 @@ Enter *C-t ; "loadrc" RET* to evaluate this configuration.
 ***** Background process
 Execute *compton* when x-starts to reduce screen-flickering.
 #+BEGIN_SRC lisp :tangle init.lisp
+  (run-shell-command "rot_sec.sh")
+  (run-shell-command "ext_monitor.sh") ; Monitor toggling script
   (run-shell-command "compton")
   (run-shell-command "nitrogen --set-auto ~/pictures/civ.png")
   (run-shell-command "pamixer --set-volume 15")
@@ -74,8 +76,8 @@ Execute *compton* when x-starts to reduce screen-flickering.
 Commands
 #+BEGIN_SRC lisp :tangle init.lisp
   (run-commands "toggle-gaps"
-		"which-key-mode")
-		
+		"which-key-mode"
+		"refresh-heads") ; Refresh monitor-heads
 #+END_SRC
 **** Prompt
 prompts for an interactive command
@@ -87,20 +89,20 @@ prompts for an interactive command
 #+END_SRC
 Message-window
 #+BEGIN_SRC lisp :tangle init.lisp
-  (setf *message-window-gravity*              :top-left
+  (setf *message-window-gravity*             :top-left
 	,*input-window-gravity*               :top-left
 	,*window-border-style*                :none
 	,*message-window-padding*             0
 	,*maxsize-border-width*               0
-	,*normal-border-width*                0
+	,*normal-border-width*                3
 	stumpwm::*float-window-border*       2
 	stumpwm::*float-window-title-height* 5)
 #+END_SRC
-Color-palette
+
 #+BEGIN_SRC lisp :tangle init.lisp
-  (set-fg-color     "#ffffff")
-  (set-bg-color     "#000080")
-  (set-border-color "#d9d9d9")
+  (set-fg-color     "#9acd32")
+  (set-bg-color     "#000000")
+  (set-border-color "#556b2f")
 #+END_SRC
 **** Load-path 
 #+BEGIN_SRC lisp :tangle init.lisp
@@ -142,16 +144,23 @@ Color-palette
 #+BEGIN_SRC lisp :tangle init.lisp
   (setf stumpwm:*top-level-error-action* :break)
 #+END_SRC
-**** set "remember"-variable 
 ** mode-line.lisp
 #+BEGIN_SRC lisp :tangle mode-line.lisp
   (load-module "cpu")
   (load-module "battery-portable")
+  (load-module "mem")
 #+END_SRC
 #+BEGIN_SRC lisp :tangle mode-line.lisp
   (setf stumpwm:*screen-mode-line-format*
-	(list "%v | %C | %B | "
+	(list "%M | %v | %C | %B | "
 	      '(:eval (stumpwm:run-shell-command "date" t))))
+  ;; mode-line padding
+  (setf *mode-line-pad-x* 550
+	,*mode-line-pad-y* 2)
+
+  (setf *mode-line-border-color*      "#556b2f"
+	,*mode-line-background-color* "#000000"
+	,*mode-line-foreground-color* "#9acd32")
 #+END_SRC
 #+BEGIN_SRC lisp :tangle key-bind.lisp
   (define-key *root-map* (kbd "C-m") "mode-line")
@@ -211,7 +220,20 @@ vim-like (hjkl)
     (let ((m (stumpwm:make-sparse-keymap)))
       (stumpwm:define-key m (stumpwm:kbd "l") "loadrc")
       (stumpwm:define-key m (stumpwm:kbd "q") "quit")
+      (stumpwm:define-key m (stumpwm:kbd "r") "restart-soft")
+      (stumpwm:define-key m (stumpwm:kbd "p") "exec shutdown -h now")
       m
       ))
   (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd ",") '*evaluate-map*)
 #+END_SRC
+****** systemctl-map
+#+BEGIN_SRC lisp :tangle key-bind.lisp
+  (defvar *systemctl-map*
+    (let ((m (stumpwm:make-sparse-keymap)))
+      (stumpwm:define-key m (stumpwm:kbd "r") "exec systemctl reboot")
+      (stumpwm:define-key m (stumpwm:kbd "q") "exec systemctl poweroff")
+      m
+      ))
+  (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "d") '*systemctl-map*)
+#+END_SRC
+
