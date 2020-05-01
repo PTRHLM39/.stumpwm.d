@@ -3,10 +3,10 @@
 (load-module "mem")
 
 (setf stumpwm:*screen-mode-line-format*
-      (list "%M | %v | %C | %B | "
+      (list "%M | %C | %B |             "
 	    '(:eval (stumpwm:run-shell-command "date" t))))
 ;; mode-line padding
-(setf *mode-line-pad-x* 550
+(setf *mode-line-pad-x* 600
       *mode-line-pad-y* 2)
 
 (setf *mode-line-border-color*      "#556b2f"
